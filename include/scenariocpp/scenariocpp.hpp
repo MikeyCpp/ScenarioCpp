@@ -22,14 +22,25 @@ struct DerivesFixture
     using ScenarioFixtureType = FixtureType;
 };
 
-template<typename T>
-struct ParamerterisedFunction {};
+namespace detail
+{
+
+template<typename Fixture>
+struct EmptyFixture : public ::testing::Test {};
+
+template<typename Fixture, typename Parameters>
+struct ParameterisedFixture : public ::testing::TestWithParam<Parameters> {};
 
 template<typename T>
-struct ParamerterisedFunction<void(T)>
+struct ParameterisedFunction {};
+
+template<typename T>
+struct ParameterisedFunction<void(T)>
 {
     using type = T;
 };
+
+} /* namespace detail */
 
 } /* namespace scenariocpp */
 
@@ -61,20 +72,20 @@ struct ParamerterisedFunction<void(T)>
 
 #define SCENARIOCPP_DECL_STEP_P(step, name, argument) \
     template<typename Parameters, typename U> \
-    static ::scenariocpp::ParameterisedStepHelper<::scenariocpp::step, ScenarioFixtureType, Parameters, ::scenariocpp::ParamerterisedFunction<void(argument)>::type, U> name(U Parameters::* arg) \
+    static ::scenariocpp::ParameterisedStepHelper<::scenariocpp::step, ScenarioFixtureType, Parameters, ::scenariocpp::detail::ParameterisedFunction<void(argument)>::type, U> name(U Parameters::* arg) \
     { \
     return \
         { #name, \
           arg, \
-          [](ScenarioFixtureType& aFixture, ::scenariocpp::ParamerterisedFunction<void(argument)>::type&& aArg){ aFixture.step##_p_f_ ##name(aArg); }\
+          [](ScenarioFixtureType& aFixture, ::scenariocpp::detail::ParameterisedFunction<void(argument)>::type&& aArg){ aFixture.step##_p_f_ ##name(aArg); }\
         }; \
     } \
-    static ::scenariocpp::ContainedParameterStepHelper<::scenariocpp::step, ScenarioFixtureType, ::scenariocpp::ParamerterisedFunction<void(argument)>::type> name(::scenariocpp::ParamerterisedFunction<void(argument)>::type&& arg) \
+    static ::scenariocpp::ContainedParameterStepHelper<::scenariocpp::step, ScenarioFixtureType, ::scenariocpp::detail::ParameterisedFunction<void(argument)>::type> name(::scenariocpp::detail::ParameterisedFunction<void(argument)>::type&& arg) \
     {\
     return \
         { #name,\
-         std::forward<::scenariocpp::ParamerterisedFunction<void(argument)>::type>(arg),\
-         [](ScenarioFixtureType& aFixture, ::scenariocpp::ParamerterisedFunction<void(argument)>::type&& aArg){ aFixture.step##_p_f_ ##name(aArg); }\
+         std::forward<::scenariocpp::detail::ParameterisedFunction<void(argument)>::type>(arg),\
+         [](ScenarioFixtureType& aFixture, ::scenariocpp::detail::ParameterisedFunction<void(argument)>::type&& aArg){ aFixture.step##_p_f_ ##name(aArg); }\
         }; \
     }\
     void step##_p_f_ ##name(argument)
@@ -102,11 +113,11 @@ struct ParamerterisedFunction<void(T)>
 #include "gtest_fixture_setup_override.hpp"
 
 #define SCENARIO_F(fixture, name)\
-    using Scenario_##fixture = ::scenariocpp::GTestFixtureSetupOverride<fixture>; \
-    struct fixture##_##name : public Scenario_##fixture { \
+    struct fixture##_##name : public fixture { \
       static const ::scenariocpp::NonParameterisedScenario<fixture> s_; \
     }; \
     const ::scenariocpp::NonParameterisedScenario<fixture>& name() { return fixture##_##name ::s_; } \
+    using Scenario_##fixture = ::scenariocpp::detail::EmptyFixture<fixture>; \
     TEST_F(Scenario_##fixture, name) { \
         ::scenariocpp::GTestScenarioRunner runner; \
         runner.Run(fixture##_##name::s_, ::scenariocpp::NoParams{}); \
@@ -115,15 +126,15 @@ struct ParamerterisedFunction<void(T)>
     = ::scenariocpp::NonParameterisedScenarioBuilder<fixture>().Build(#fixture, #name)
 
 #define SCENARIO_P(fixture, name, parameters)\
-    struct name : public ::scenariocpp::GTestFixtureSetupOverride<fixture>, \
-                  public ::testing::WithParamInterface<parameters> { \
-    static const ::scenariocpp::Scenario<fixture, parameters> s_; \
+    struct fixture##_##name : public fixture { \
+      static const ::scenariocpp::Scenario<fixture, parameters> s_; \
     }; \
+    using name = ::scenariocpp::detail::ParameterisedFixture<fixture, parameters>; \
     TEST_P(name, Scenario_##fixture) { \
         ::scenariocpp::GTestScenarioRunner runner; \
-        runner.Run(name::s_, GetParam()); \
+        runner.Run(fixture##_##name::s_, GetParam()); \
     } \
-    const ::scenariocpp::Scenario<fixture, parameters> name::s_ \
+    const ::scenariocpp::Scenario<fixture, parameters> fixture##_##name::s_ \
     = ::scenariocpp::ScenarioBuilder<fixture, parameters>().Build(#fixture, #name)
 
 #define INSTANTIATE_SCENARIO_P(name, parameters) \

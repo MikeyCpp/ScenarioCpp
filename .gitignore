@@ -32,3 +32,7 @@
 *.app
 
 .DS_STORE
+*.config
+*.creator
+*.files
+*.includes 
