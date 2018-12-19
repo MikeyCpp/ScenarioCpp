@@ -1,4 +1,4 @@
-#include "stringutils.hpp"
+#include "scenariocpp/internal/stringutils.hpp"
 
 namespace
 {

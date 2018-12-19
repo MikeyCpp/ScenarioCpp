@@ -1,4 +1,4 @@
-#include "ansi.hpp"
+#include "scenariocpp/internal/ansi.hpp"
 
 namespace
 {

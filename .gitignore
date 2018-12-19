@@ -36,3 +36,9 @@
 *.creator
 *.files
 *.includes 
+
+Makefile
+CMakeFiles/
+CMakeLists.txt.user
+Makefile
+cmake_install.cmake

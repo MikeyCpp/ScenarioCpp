@@ -1,48 +1,7 @@
 #pragma once
 
-#include "steps.hpp"
-
-#include "gtest/gtest.h"
-
-#include <type_traits>
-
-namespace scenariocpp
-{
-
-template<typename FixtureType>
-struct Fixture : public ::testing::Test
-{
-    using ScenarioFixtureType = FixtureType;
-};
-
-
-template<typename FixtureType>
-struct DerivesFixture
-{
-    using ScenarioFixtureType = FixtureType;
-};
-
-namespace detail
-{
-
-template<typename Fixture>
-struct EmptyFixture : public ::testing::Test {};
-
-template<typename Fixture, typename Parameters>
-struct ParameterisedFixture : public ::testing::TestWithParam<Parameters> {};
-
-template<typename T>
-struct ParameterisedFunction {};
-
-template<typename T>
-struct ParameterisedFunction<void(T)>
-{
-    using type = T;
-};
-
-} /* namespace detail */
-
-} /* namespace scenariocpp */
+#include "internal/steps.hpp"
+#include "internal/parameterised_function.hpp"
 
 #define SCENARIOCPP_DECL_STEP(step, name) \
     static ::scenariocpp::ParameterlessStepHelper<::scenariocpp::step, ScenarioFixtureType> name() \
@@ -106,11 +65,10 @@ struct ParameterisedFunction<void(T)>
 #define POSTCONDITION_STEP_P(name, argument) \
     SCENARIOCPP_DECL_STEP_P(PostCondition, name, argument)
 
-#include "scenario.hpp"
-#include "scenario_builder.hpp"
-#include "scenario_runner.hpp"
-
-#include "gtest_fixture_setup_override.hpp"
+#include "internal/fixture.hpp"
+#include "internal/scenario.hpp"
+#include "internal/scenario_builder.hpp"
+#include "internal/scenario_runner.hpp"
 
 #define SCENARIO_F(fixture, name)\
     struct fixture##_##name : public fixture { \

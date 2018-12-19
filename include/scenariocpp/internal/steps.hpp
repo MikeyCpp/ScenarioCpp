@@ -1,12 +1,12 @@
 #pragma once
 
+#include "stringutils.hpp"
+#include "parameter_printer.hpp"
+#include "result.hpp"
+
 #include <string>
 #include <functional>
 #include <sstream>
-
-#include "stringutils.hpp"
-
-#include "parameter_printer.hpp"
 
 namespace scenariocpp
 {

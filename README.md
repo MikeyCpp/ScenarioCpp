@@ -112,21 +112,6 @@ Scenario: A value is appended to a string
 [       OK ] Scenario_TestStrings.AValueIsAppendedToAString (1 ms)
 ```
 
-# Re-using Scenarios
-A scenario can re-use a previous scenario in it's `Given` to set the initial condition for a test
-
-```cpp
-SCENARIO_F ( ScenarioFixture, FirstScenario )
-    .Given ( PreconditionName() )
-    .When  ( ActionName() )
-    .Then  ( PostconditionName() );
-
-SCENARIO_F ( ScenarioFixture, NextScenario )
-    .Given ( FirstScenario() )
-    .When  ( ActionName() )
-    .Then  ( PostconditionName() );
-```
-
 # Parameterised Scenarios
 Paramerised Scenarios allow you to run the same scenario with different parameters for each step
 
@@ -161,4 +146,19 @@ const std::vector<Params> MyTestParams =
 };
 
 INSTANTIATE_SCENARIO_P (AValueIsAppendedToAString, MyTestParams);
+```
+
+# Scenario as precondition
+A previous scenario can be used a precondition for a proceeding scenario; iff the scenario succeeded
+
+```cpp
+SCENARIO_F ( ScenarioFixture, FirstScenario )
+    .Given ( PreconditionName() )
+    .When  ( ActionName() )
+    .Then  ( PostconditionName() );
+
+SCENARIO_F ( ScenarioFixture, NextScenario )
+    .Given ( FirstScenario() )
+    .When  ( ActionName() )
+    .Then  ( PostconditionName() );
 ```

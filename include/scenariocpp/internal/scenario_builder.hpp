@@ -18,27 +18,33 @@ class ScenarioBuilder
     template<typename T, typename U> \
     next_step##Builder name(ParameterisedStepHelper<keyword, Fixture, Parameters, T, U> a##keyword) \
     { \
-        BaseBuilder::steps_->keyword##s_.emplace_back(new ParameterisedStep<Fixture, Parameters, T, U>(#name, #keyword, std::move(a##keyword)));\
-        return BaseBuilder::steps_; \
+        auto step = std::make_shared<ParameterisedStep<Fixture, Parameters, T, U>>(#name, #keyword, std::move(a##keyword));\
+        BaseBuilder::base_->keyword##s_.emplace_back(step);\
+        BaseBuilder::base_->allSteps_.emplace_back(step); \
+        return BaseBuilder::base_; \
     } \
      \
     next_step##Builder name(ParameterlessStepHelper<keyword, Fixture> a##keyword) \
     { \
-        BaseBuilder::steps_->keyword##s_.emplace_back(new ParameterlessStep<Fixture, Parameters>(#name, #keyword, std::move(a##keyword))); \
-        return BaseBuilder::steps_; \
+        auto step = std::make_shared<ParameterlessStep<Fixture, Parameters>>(#name, #keyword, std::move(a##keyword)); \
+        BaseBuilder::base_->keyword##s_.emplace_back(step); \
+        BaseBuilder::base_->allSteps_.emplace_back(step); \
+        return BaseBuilder::base_; \
     } \
      \
     template<typename T> \
     next_step##Builder name(ContainedParameterStepHelper<keyword, Fixture, T> a##keyword) \
     { \
-        BaseBuilder::steps_->keyword##s_.emplace_back(new ContainedParameterStep<Fixture, Parameters, T>(#name, #keyword, std::move(a##keyword))); \
-        return BaseBuilder::steps_; \
+        auto step = std::make_shared<ContainedParameterStep<Fixture, Parameters, T>>(#name, #keyword, std::move(a##keyword)); \
+        BaseBuilder::base_->keyword##s_.emplace_back(step); \
+        BaseBuilder::base_->allSteps_.emplace_back(step); \
+        return BaseBuilder::base_; \
     }
 
     struct ThenBuilder : public BaseBuilder
     {
-        ThenBuilder(std::shared_ptr<Steps<Fixture, Parameters>> steps)
-            : BaseBuilder(steps) {}
+        ThenBuilder(std::shared_ptr<ScenarioBase<Fixture, Parameters>> base)
+            : BaseBuilder(base) {}
 
         DECL_BUILDER_FUNC(And, PostCondition, Then)
         DECL_BUILDER_FUNC(And, ExpectedAction, Then)
@@ -46,8 +52,8 @@ class ScenarioBuilder
 
     struct WhenBuilder : public BaseBuilder
     {
-        WhenBuilder(std::shared_ptr<Steps<Fixture, Parameters>> steps)
-            : BaseBuilder(steps) {}
+        WhenBuilder(std::shared_ptr<ScenarioBase<Fixture, Parameters>> base)
+            : BaseBuilder(base) {}
 
         DECL_BUILDER_FUNC(And, Action, When)
 
@@ -57,13 +63,13 @@ class ScenarioBuilder
 
     struct GivenBuilder : public BaseBuilder
     {
-        GivenBuilder(std::shared_ptr<Steps<Fixture, Parameters>> steps)
-            : BaseBuilder(steps) {}
+        GivenBuilder(std::shared_ptr<ScenarioBase<Fixture, Parameters>> base)
+            : BaseBuilder(base) {}
 
         GivenBuilder And(const NonParameterisedScenario<Fixture>& scenario)
         {
-            BaseBuilder::steps_->PreScenarios_.emplace_back(new ScenarioStep<Fixture, Parameters>("And", scenario));
-            return BaseBuilder::steps_;
+            BaseBuilder::base_->PreScenarios_.emplace_back(new ScenarioStep<Fixture, Parameters>("And", scenario));
+            return BaseBuilder::base_;
         }
 
         DECL_BUILDER_FUNC(And, Precondition, Given)
@@ -74,13 +80,15 @@ class ScenarioBuilder
 
     struct InitialBuilder : public BaseBuilder
     {
-        InitialBuilder(std::shared_ptr<Steps<Fixture, Parameters>> steps)
-            : BaseBuilder(steps) {}
+        InitialBuilder(std::shared_ptr<ScenarioBase<Fixture, Parameters>> base)
+            : BaseBuilder(base) {}
 
         GivenBuilder Given(const NonParameterisedScenario<Fixture>& scenario)
         {
-            BaseBuilder::steps_->PreScenarios_.emplace_back(new ScenarioStep<Fixture, Parameters>("Given", scenario));
-            return BaseBuilder::steps_;
+            auto step = std::make_shared<ScenarioStep<Fixture, Parameters>>("Given", scenario);
+            BaseBuilder::base_->PreScenarios_.emplace_back(step);
+            BaseBuilder::base_->allSteps_.emplace_back(step);
+            return BaseBuilder::base_;
         }
 
         DECL_BUILDER_FUNC(Given, Precondition, Given)
@@ -92,8 +100,8 @@ public:
     InitialBuilder Build(const std::string& fixtureName,
                          const std::string& scenarioName)
     {
-        return InitialBuilder(std::make_shared<Steps<Fixture, Parameters>>(fixtureName,
-                                                                           scenarioName));
+        return InitialBuilder(std::make_shared<ScenarioBase<Fixture, Parameters>>(fixtureName,
+                                                                                  scenarioName));
     }
 };
 

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "scenario.hpp"
-
 #include "logger.hpp"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace scenariocpp
 {
@@ -22,8 +21,7 @@ class GTestScenarioRunner
 
 public:
     template<typename Fixture, typename Parameters>
-    void Run(
-            const Scenario<Fixture, Parameters>& aScenario,
+    void Run(const Scenario<Fixture, Parameters>& aScenario,
             const Parameters& aParameters)
     {
         Logger::Log("BEGIN SCENARIO", ansi::Colour::Green) << aScenario.GetFixtureName()
@@ -52,7 +50,7 @@ public:
             }
 
             aFixture.TearDown();
-        }
+        } /* scope */
 
         if(::testing::Test::HasFailure())
         {

@@ -1,4 +1,4 @@
-#include "scenariocpp.hpp"
+#include "scenariocpp/scenariocpp.hpp"
 
 #include <gtest/gtest.h>
 
@@ -30,9 +30,9 @@ public:
 };
 
 SCENARIO_F ( TestStrings, AValueIsAppendedToAString )
-    .Given  ( AStringWithInitialValue("Hello") )
-    .When   ( TheStringIsAppendedWith("World") )
-    .Then   ( TheStringNowEquals("HelloWorld") );
+    .Given ( AStringWithInitialValue("Hello") )
+    .When  ( TheStringIsAppendedWith("World") )
+    .Then  ( TheStringNowEquals("HelloWorld") );
 
 struct Params
 {
@@ -42,14 +42,15 @@ struct Params
 };
 
 SCENARIO_P ( TestStrings, AValueIsAppendedToAnotherString, Params )
-    .Given  ( AStringWithInitialValue(&Params::initalValue_) )
-    .When   ( TheStringIsAppendedWith(&Params::appendedValue_) )
-    .Then   ( TheStringNowEquals(&Params::expectedValue_) );
+    .Given ( AStringWithInitialValue(&Params::initalValue_) )
+    .When  ( TheStringIsAppendedWith(&Params::appendedValue_) )
+    .Then  ( TheStringNowEquals(&Params::expectedValue_) );
 
 std::vector<Params> MyTestParams =
 {
     { "Hello" , "World", "HelloWorld" },
-    { "Flex" , "Trade", "FlexTrade" }
+    { "Foo" , "Bar", "FooBar" },
+    { "google" , "test", "googletest" }
 };
 
 INSTANTIATE_SCENARIO_P(AValueIsAppendedToAnotherString, MyTestParams);
