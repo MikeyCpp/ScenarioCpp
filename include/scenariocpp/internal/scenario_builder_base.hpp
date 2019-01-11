@@ -25,7 +25,7 @@ struct ScenarioBase
     std::vector<std::shared_ptr<Step<Fixture, Parameters>>> Actions_;
     std::vector<std::shared_ptr<Step<Fixture, Parameters>>> PostConditions_;
 
-    std::vector<std::shared_ptr<Step<Fixture, Parameters>>> allSteps_;
+    std::vector<std::shared_ptr<Step<Fixture, Parameters>>> stepsInOrderOfDeclaration_;
 };
 
 template<typename Fixture, typename Parameters>

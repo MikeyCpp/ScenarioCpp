@@ -88,7 +88,7 @@ SCENARIO_F ( ExecutionOrderTest, ANonParameterisedScenario )
     .Then  ( ANonParameterisedPostconditionStep() )
     .And   ( ANonParameterisedExpectedActionStep() );
 
-TEST_F ( Scenario_ExecutionOrderTest, CheckANonParameterisedScenario )
+TEST_F ( SCENARIOCPP_FIXTURE_NAME(ExecutionOrderTest), CheckANonParameterisedScenario )
 {
     const auto& steps = ExecutionOrderTest::GetSteps();
 
@@ -100,7 +100,7 @@ TEST_F ( Scenario_ExecutionOrderTest, CheckANonParameterisedScenario )
     EXPECT_EQ(steps.at(3), step::Postcondition);
 }
 
-TEST_F(Scenario_ExecutionOrderTest, DummyClearSteps)
+TEST_F( SCENARIOCPP_FIXTURE_NAME(ExecutionOrderTest), DummyClearSteps)
 {
     auto& steps = ExecutionOrderTest::GetSteps();
 
@@ -114,7 +114,7 @@ SCENARIO_F ( ExecutionOrderTest, ParameterisedScenario )
     .Then  ( AParameterisedPostconditionStep (step::Postcondition) )
     .And   ( AParameterisedExpectedActionStep (step::ExpectedAction) );
 
-TEST_F ( Scenario_ExecutionOrderTest, CheckParameterisedScenario )
+TEST_F ( SCENARIOCPP_FIXTURE_NAME(ExecutionOrderTest), CheckParameterisedScenario )
 {
     const auto& steps = ExecutionOrderTest::GetSteps();
 
@@ -126,7 +126,7 @@ TEST_F ( Scenario_ExecutionOrderTest, CheckParameterisedScenario )
     EXPECT_EQ(steps.at(3), step::Postcondition);
 }
 
-TEST_F ( Scenario_ExecutionOrderTest, DummyClearSteps2 )
+TEST_F ( SCENARIOCPP_FIXTURE_NAME(ExecutionOrderTest), DummyClearSteps2 )
 {
     auto& steps = ExecutionOrderTest::GetSteps();
 
@@ -144,7 +144,7 @@ SCENARIO_F ( ExecutionOrderTest, MixedParameterisedScenario )
     .And   ( AParameterisedExpectedActionStep (step::ExpectedAction) )
     .And   ( ANonParameterisedExpectedActionStep() );
 
-TEST_F ( Scenario_ExecutionOrderTest, CheckMixedParameterisedScenario )
+TEST_F ( SCENARIOCPP_FIXTURE_NAME(ExecutionOrderTest), CheckMixedParameterisedScenario )
 {
     const auto& steps = ExecutionOrderTest::GetSteps();
 
@@ -160,7 +160,7 @@ TEST_F ( Scenario_ExecutionOrderTest, CheckMixedParameterisedScenario )
     EXPECT_EQ(steps.at(7), step::Postcondition);
 }
 
-TEST_F ( Scenario_ExecutionOrderTest, DummyClearSteps3 )
+TEST_F ( SCENARIOCPP_FIXTURE_NAME(ExecutionOrderTest), DummyClearSteps3 )
 {
     auto& steps = ExecutionOrderTest::GetSteps();
 

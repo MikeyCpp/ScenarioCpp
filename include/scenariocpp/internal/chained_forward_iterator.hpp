@@ -51,10 +51,10 @@ public:
 
         bool operator ==(const iterator& other) const
         {
-            if(end_ != other.end_)
+            if (end_ != other.end_)
                 return false;
 
-            if(end_ == true)
+            if (end_ == true)
                 return true;
 
             return listIter_ == other.listIter_
@@ -69,11 +69,11 @@ public:
     private:
         void IncrementTillValid()
         {
-            while(iter_ == listIter_->get().end())
+            while (iter_ == listIter_->get().end())
             {
                 ++listIter_;
 
-                if(listIter_ == endListIter_)
+                if (listIter_ == endListIter_)
                 {
                     end_ = true;
                     break;
@@ -104,7 +104,8 @@ private:
 };
 
 template<typename Container, typename ...Containers>
-ChainedForwardIterator<typename std::remove_reference<Container>::type> MakeChainedForwardIterator(Container& container, Containers&... containers)
+ChainedForwardIterator<typename std::remove_reference<Container>::type> MakeChainedForwardIterator(Container& container,
+                                                                                                   Containers&... containers)
 {
     return ChainedForwardIterator<typename std::remove_reference<Container>::type>({container, containers...});
 }

@@ -2,6 +2,7 @@
 
 #include "steps.hpp"
 #include "scenario_step.hpp"
+#include "failure.hpp"
 
 #include "scenario_builder_base.hpp"
 
@@ -15,19 +16,10 @@
 #include "gtest/gtest.h"
 
 #include <string>
-#include <vector>
 #include <memory>
-#include <list>
 
 namespace scenariocpp
 {
-
-class ScenarioException : public std::logic_error
-{
-public:
-    ScenarioException(const std::string& error)
-        : logic_error(error) {}
-};
 
 template<typename Fixture, typename Parameters>
 class Scenario
@@ -40,35 +32,39 @@ public:
                          const Parameters& aParameters,
                          bool verbose) const
     {
-        for(auto& step : detail::MakeChainedForwardIterator(base_->PreScenarios_,
-                                                            base_->Preconditions_,
-                                                            base_->ExpectedActions_,
-                                                            base_->Actions_,
-                                                            base_->PostConditions_))
+        if (failure_.HasFailure(&aParameters))
         {
-            if(verbose)
-            {
-                using namespace stringutils;
-                auto keyword = ToUpper(Humanise(step->GetKeyword()));
+            Logger::LogError() << "The scenario " << GetFixtureName() << "::" << GetName()
+                               << " has previously failed.";
+            FAIL();
+            return;
+        }
 
-                Logger::Log(keyword, ansi::Colour::Amber)
-                        << GetFixtureName() << "." << step->GetName()
-                        << std::endl;
+        for (auto& step : detail::MakeChainedForwardIterator(base_->PreScenarios_,
+                                                             base_->Preconditions_,
+                                                             base_->ExpectedActions_,
+                                                             base_->Actions_,
+                                                             base_->PostConditions_))
+        {
+            if (verbose)
+            {
+                Logger::LogInfo(stringutils::ToUpper(stringutils::Humanise(step->GetKeyword())), ansi::Colour::Amber)
+                        << GetFixtureName() << "." << step->GetName();
             }
 
             step->Execute(aFixture, aParameters);
 
-            if(::testing::Test::HasFailure())
+            if (::testing::Test::HasFailure())
             {
-                std::stringstream ss;
+                failure_.SetFailure(&aParameters);
 
-                ss << "The " << stringutils::Humanise(step->GetKeyword())
+                Logger::LogError() << "The " << stringutils::Humanise(step->GetKeyword())
                    << " " << GetFixtureName() << "::" << step->GetName()
                    << " -> \"" << step->GetDescription(aParameters) << "\""
                    << ", in scenario '" << GetName()
                    << "' failed. ";
 
-                throw ScenarioException(ss.str());
+                return;
             }
         }
     }
@@ -78,7 +74,7 @@ public:
         std::string description {"Scenario: "};
         description += stringutils::CapitaliseFirst(stringutils::Humanise(base_->scenarioName_));
 
-        for(auto& step : base_->allSteps_)
+        for (auto& step : base_->stepsInOrderOfDeclaration_)
         {
             description += "\n  ";
             description += step->GetDescription(aParameters);
@@ -98,6 +94,7 @@ public:
     }
 
 private:
+    mutable Failure<Parameters> failure_;
     std::shared_ptr<ScenarioBase<Fixture, Parameters>> base_;
 };
 

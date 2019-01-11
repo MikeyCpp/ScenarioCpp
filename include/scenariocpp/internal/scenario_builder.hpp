@@ -20,7 +20,7 @@ class ScenarioBuilder
     { \
         auto step = std::make_shared<ParameterisedStep<Fixture, Parameters, T, U>>(#name, #keyword, std::move(a##keyword));\
         BaseBuilder::base_->keyword##s_.emplace_back(step);\
-        BaseBuilder::base_->allSteps_.emplace_back(step); \
+        BaseBuilder::base_->stepsInOrderOfDeclaration_.emplace_back(step); \
         return BaseBuilder::base_; \
     } \
      \
@@ -28,7 +28,7 @@ class ScenarioBuilder
     { \
         auto step = std::make_shared<ParameterlessStep<Fixture, Parameters>>(#name, #keyword, std::move(a##keyword)); \
         BaseBuilder::base_->keyword##s_.emplace_back(step); \
-        BaseBuilder::base_->allSteps_.emplace_back(step); \
+        BaseBuilder::base_->stepsInOrderOfDeclaration_.emplace_back(step); \
         return BaseBuilder::base_; \
     } \
      \
@@ -37,7 +37,7 @@ class ScenarioBuilder
     { \
         auto step = std::make_shared<ContainedParameterStep<Fixture, Parameters, T>>(#name, #keyword, std::move(a##keyword)); \
         BaseBuilder::base_->keyword##s_.emplace_back(step); \
-        BaseBuilder::base_->allSteps_.emplace_back(step); \
+        BaseBuilder::base_->stepsInOrderOfDeclaration_.emplace_back(step); \
         return BaseBuilder::base_; \
     }
 
@@ -87,7 +87,7 @@ class ScenarioBuilder
         {
             auto step = std::make_shared<ScenarioStep<Fixture, Parameters>>("Given", scenario);
             BaseBuilder::base_->PreScenarios_.emplace_back(step);
-            BaseBuilder::base_->allSteps_.emplace_back(step);
+            BaseBuilder::base_->stepsInOrderOfDeclaration_.emplace_back(step);
             return BaseBuilder::base_;
         }
 

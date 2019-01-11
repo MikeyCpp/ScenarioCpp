@@ -64,7 +64,7 @@ SCENARIO_F ( ScenarioFixture, ScenarioName )
 Keywords are only accessable in the order Given -> When -> Then, and only accept a corresponding step
 
 # Running a scenario
-Scenarios are ran under the google testing framework, when a scenario is defined a google test is created and so can be filtered as regular google test
+Scenarios are ran under the google testing framework, when a scenario is defined a google test is created and so may be filtered like regular google tests
 
 Steps defined by the scenario are executed in the order
 Preconditions -> Expected Actions -> Actions -> Postconditions
@@ -148,8 +148,8 @@ const std::vector<Params> MyTestParams =
 INSTANTIATE_SCENARIO_P (AValueIsAppendedToAString, MyTestParams);
 ```
 
-# Scenario as precondition
-A previous scenario can be used a precondition for a proceeding scenario; iff the scenario succeeded
+# Scenario precondition
+A non-parameterised scenario can be used as a precondition in scenario iff the scenario succeeded
 
 ```cpp
 SCENARIO_F ( ScenarioFixture, FirstScenario )
@@ -161,4 +161,19 @@ SCENARIO_F ( ScenarioFixture, NextScenario )
     .Given ( FirstScenario() )
     .When  ( ActionName() )
     .Then  ( PostconditionName() );
+```
+
+# Parameter printers
+By default step parameters in the scenario description will be printed using the function `std::ostream& operator<<(std::ostream& os, const ParameterType& t)`
+
+Define your own printer by implimenting a `PrintParam` function in the `scenariocpp` namespace
+```cpp
+namespace scenariocpp
+{
+inline std::ostream& PrintParam(std::ostream& os, const ParameterType& t)
+{
+    ...
+    return os;
+}
+} /* namespace scenariocpp */
 ```

@@ -2,19 +2,27 @@
 
 #include <iomanip>
 
-std::ostream &scenariocpp::Logger::Log(const std::string &identifier, scenariocpp::ansi::Colour colour)
+scenariocpp::InfoLog scenariocpp::Logger::LogInfo(const std::string& identifier,
+                                                  ansi::Colour colour)
 {
-    return std::cout << colour
-                     << "[ "
-                     << std::left
-                     << std::setw(15) << identifier
-                     << " ] "
-                     << ansi::Colour::Default;
+    if(identifier.empty())
+    {
+        std::cout << colour << "[-----------------] ";
+    }
+    else
+    {
+        std::cout << colour
+                  << "[ "
+                  << std::left
+                  << std::setw(15) << identifier
+                  << " ] ";
+    }
+
+    std::cout << ansi::Colour::Default;
+    return {};
 }
 
-std::ostream &scenariocpp::Logger::LogInfo()
+scenariocpp::ErrorLog scenariocpp::Logger::LogError()
 {
-    return std::cout << ansi::Colour::Amber
-                     << "[-----------------] "
-                     << ansi::Colour::Default;
+     return {};
 }
