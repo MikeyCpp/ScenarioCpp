@@ -99,9 +99,9 @@ output:
 [ RUN      ] Scenario_TestStrings.AValueIsAppendedToAString
 [ BEGIN SCENARIO  ] TestStrings.AValueIsAppendedToAString
 Scenario: A value is appended to a string
-  Given a string with initial value ["Hello"]
-  When the string is appended with ["World"]
-  Then the string now equals ["HelloWorld"]
+  Given a string with initial value "Hello"
+  When the string is appended with "World"
+  Then the string now equals "HelloWorld"
 [-----------------] Set-up test fixture
 [-----------------] Execute scenario
 [ PRECONDITION    ] TestStrings.AStringWithInitialValue
@@ -110,6 +110,28 @@ Scenario: A value is appended to a string
 [-----------------] Checking expected actions were fulfilled
 [ SCENARIO PASSED ] AValueIsAppendedToAString
 [       OK ] Scenario_TestStrings.AValueIsAppendedToAString (1 ms)
+```
+
+# Multi-Parameter Steps
+Steps can contain multiple parameters with a broken up step description
+
+example:
+```cpp
+PRECONDITION_STEP_P2 (PreconditionNamePart1, Arg1 aArg1,
+                      PreconditionNamePart2, Arg2 aArg2) {
+ ... setup initial condition using aArg1 and aArg2...
+}
+```
+Set-up a multi-parameter step use member access `.` for each part of the step
+
+example:
+```cpp
+SCENARIO_F ( HealthSystemTest, CategorisesHealthyAndOverweightPatients )
+    .Given ( APatientNamed("Bob").WithHeight(174_cm).AndWeight(180_kg) )
+    .And   ( APatientNamed("Alice").WithHeight(168_cm).AndWeight(63_kg) )
+    .When  ( BmiIsCalculated() )
+    .Then  ( PatientsCategorisedAs("Overweight").Contains("Bob") )
+    .And   ( PatientsCategorisedAs("Healthy").Contains("Alice") );
 ```
 
 # Parameterised Scenarios
@@ -125,7 +147,8 @@ struct Params
     std::string initialValue_;
     std::string appendedValue_;
     std::string expectedValue_;
-}
+};
+
 SCENARIO_P ( TestStrings, AValueIsAppendedToAString, Params )
     .Given ( AStringWithInitialValue(&Params::initialValue_) )
     .When  ( TheStringIsAppendedWith(&Params::appendedValue_) )
